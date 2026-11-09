@@ -1,0 +1,171 @@
+name: selvagem-montage
+version: "0.1"
+description: >
+  Pipeline de montagem por COLISÃO, na gramática do Selvagem (coRdeNa).
+  Fork invertido do documentary-montage: onde aquele proíbe glitch, freeze,
+  RGB split e transição chamativa, este exige — mas só quando a colisão pede.
+  Material próprio primeiro (pasta local de footage), arquivo aberto depois.
+  O render final é um RASCUNHO DESTRUÍDO + um XML de Premiere com o esqueleto
+  e marcadores de abuso: a máquina monta o esqueleto, o humano destrói na timeline.
+category: documentary
+stability: beta
+default_checkpoint_policy: guided
+
+reference_input:
+  supported: false
+
+orchestration:
+  mode: executive-producer
+  skill: pipelines/selvagem-montage/executive-producer
+  budget_default_usd: 1.00
+  max_revisions_per_stage: 3
+  max_send_backs: 2
+  max_wall_time_minutes: 60
+
+extensions:
+  custom_scripts: true
+  custom_playbooks: true
+  custom_skills: true
+  custom_tools: false
+
+required_skills:
+  - pipelines/selvagem-montage/executive-producer
+  - pipelines/selvagem-montage/idea-director
+  - pipelines/selvagem-montage/scene-director
+  - pipelines/documentary-montage/asset-director
+  - pipelines/selvagem-montage/edit-director
+  - pipelines/selvagem-montage/compose-director
+  - meta/reviewer
+  - meta/checkpoint-protocol
+
+compatible_playbooks:
+  custom_allowed: true
+
+stages:
+  - name: idea
+    skill: pipelines/selvagem-montage/idea-director
+    produces:
+      - brief
+    tools_available: []
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Tese de colisão em UMA frase (A contra B), não um "tema"
+      - Motivo visual recorrente nomeado (um objeto/gesto/forma que volta e muda de sentido)
+      - Fonte do material declarada (pasta local do usuário, arquivo aberto, ou mistura com proporção)
+      - Música/áudio definido — a música é a grade de corte
+      - Regra de ruptura declarada (o que o vídeo se recusa a fazer)
+    success_criteria:
+      - Schema-valid brief artifact
+      - metadata.tese_colisao, metadata.motivo, metadata.fonte_material, metadata.regra_ruptura presentes
+      - metadata.music_plan presente
+
+  - name: scene_plan
+    skill: pipelines/selvagem-montage/scene-director
+    required_artifacts_in:
+      - brief
+    produces:
+      - scene_plan
+    tools_available:
+      - scene_detect
+      - frame_sampler
+      - video_analyzer
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - Slots organizados em PARES de colisão (A|B), não em sequência linear
+      - Motivo aparece em pelo menos 3 slots, cada vez com função diferente
+      - Cada par tem o tipo de colisão nomeado (escala, ritmo, cor, sentido, direção, tempo)
+      - Pelo menos 1 slot "ferida" (imagem que fica tempo demais de propósito)
+    success_criteria:
+      - Schema-valid scene_plan artifact
+      - metadata.pares[] com tipo_colisao em cada par
+      - metadata.motivo_slots[] com >= 3 entradas
+
+  - name: assets
+    skill: pipelines/documentary-montage/asset-director
+    required_artifacts_in:
+      - scene_plan
+      - brief
+    produces:
+      - asset_manifest
+    optional_tools:
+      - scene_detect
+      - frame_sampler
+      - video_analyzer
+      - direct_clip_search
+      - corpus_builder
+      - clip_search
+      - music_gen
+    tools_available:
+      - scene_detect
+      - frame_sampler
+      - video_analyzer
+      - direct_clip_search
+      - corpus_builder
+      - clip_search
+      - music_gen
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - "OVERRIDE SELVAGEM: material local do usuário vem ANTES de stock (ver executive-producer)"
+      - Todo slot tem um clipe; motivo pode repetir o MESMO clipe de propósito (exceção ao no-reuse)
+      - Proveniência presente (local = source_tool "local", com caminho original)
+    success_criteria:
+      - Schema-valid asset_manifest artifact
+      - Um asset de vídeo por slot
+
+  - name: edit
+    skill: pipelines/selvagem-montage/edit-director
+    required_artifacts_in:
+      - scene_plan
+      - asset_manifest
+    produces:
+      - edit_decisions
+    tools_available:
+      - audio_energy
+      - video_analyzer
+    checkpoint_required: true
+    human_approval_default: true
+    review_focus:
+      - renderer_family = documentary-montage (enum do schema); gramática real em metadata.gramatica = selvagem
+      - Cada corte tem reason escrito como COLISÃO ("X contra Y porque...")
+      - metadata.abuso[] usa só tipos suportados por scripts/selvagem/abuso.py
+      - Abusos são poucos e com motivo — densidade máxima 1 a cada 4 segundos, salvo pico declarado
+      - Pelo menos uma quebra de grade (corte fora do beat) declarada e justificada
+      - Motivo visual volta transformado (escala, velocidade, cor, inversão)
+    success_criteria:
+      - Schema-valid edit_decisions artifact
+      - metadata.abuso[] válido (rodar abuso.py --dry-run)
+
+  - name: compose
+    skill: pipelines/selvagem-montage/compose-director
+    required_artifacts_in:
+      - edit_decisions
+      - asset_manifest
+      - brief
+    produces:
+      - render_report
+    required_tools:
+      - video_compose
+    optional_tools:
+      - audio_mixer
+      - color_grade
+      - video_trimmer
+      - video_stitch
+    tools_available:
+      - video_compose
+      - audio_mixer
+      - color_grade
+      - video_trimmer
+      - video_stitch
+    checkpoint_required: true
+    human_approval_default: false
+    review_focus:
+      - Corpo renderizado limpo PRIMEIRO, abuso aplicado DEPOIS (scripts/selvagem/abuso.py)
+      - Duração final == duração do corpo (abuso não estica tempo)
+      - XML do Premiere gerado (scripts/selvagem/premiere_xml.py) e válido
+      - Contact sheet dos frames de abuso inspecionada
+    success_criteria:
+      - Schema-valid render_report artifact
+      - body.mp4, final_destruido.mp4 e selvagem_premiere.xml existem

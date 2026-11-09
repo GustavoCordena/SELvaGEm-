@@ -18,6 +18,8 @@ skills/pipelines/selvagem-montage/
   edit-director.md                           # quebra de grade, abuso com densidade controlada
   compose-director.md                        # corpo limpo → abuso → contact sheet → XML
 scripts/selvagem/
+  mapa.py                                    # lê o material: BPM, beats, ataques, cortes, planos
+  remonta.py                                 # remonta por fragmentos no beat, com fx por fragmento
   abuso.py                                   # passe destrutivo ffmpeg (11 tipos)
   premiere_xml.py                            # edit_decisions → XML FCP7 pro Premiere
 skills/INDEX.md                              # (versão com a entrada do pipeline)
@@ -78,6 +80,16 @@ pipeline, em qualquer vídeo seu:
 python scripts/selvagem/abuso.py --input clipe.mp4 --abusos abusos.json --output clipe_destruido.mp4
 ```
 com `abusos.json` = `[{"tipo":"stutter","inicio":2.0,"fim":2.5,"frames":2}, ...]`
+
+## v0.2 — depois do primeiro teste real
+
+O teste no trecho do Probot ficou fraco: filtro por cima, escolhido pelo som,
+contido demais. Mudanças:
+- o edit agora **mapeia o material** antes (`mapa.py`) e todo golpe cita o plano;
+- **modo de violência** obrigatório: contido, saturação ou regra única
+  (sai a regra fixa de "1 abuso a cada 4s");
+- **remontar antes de filtrar**: o edit pode virar uma lista de fragmentos
+  que o `remonta.py` corta e cola no beat.
 
 ## Limites honestos
 

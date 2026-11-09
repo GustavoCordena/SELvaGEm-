@@ -63,6 +63,8 @@ COM estas exceções (elas vencem o texto daquele skill):
 | Script | Papel |
 |--------|-------|
 | `scripts/selvagem/abuso.py` | Passe destrutivo em janelas de tempo: rgb_split, chroma_sangra, negativo, estouro, sujeira, fantasma, borrao_temporal, diferenca, stutter, congela, reverso. Preserva duração e sync. `--list` mostra tudo. |
+| `scripts/selvagem/mapa.py` | Lê o material antes de tudo: BPM, beats, ataques, cortes de imagem, lista de planos. Obrigatório no edit. |
+| `scripts/selvagem/remonta.py` | Remonta o vídeo a partir de fragmentos (`s`, `d`, `fx`) sobre o áudio inteiro. É o caminho do corpo quando o edit remonta. |
 | `scripts/selvagem/premiere_xml.py` | Exporta edit_decisions como XML FCP7 (xmeml v4) pro Premiere, com marcadores de sequência pra cada abuso e silêncio. |
 
 ## Regras entre stages
@@ -75,6 +77,14 @@ COM estas exceções (elas vencem o texto daquele skill):
 - **Fale português**, trate o usuário por "você".
 - Abuso novo que não existe em `abuso.py` → NÃO invente no edit. Coloque em
   `metadata.abuso_manual[]` (vira só marcador no XML) e diga ao usuário.
+
+## Lição do primeiro teste real
+
+Filtro por cima de uma montagem pronta, escolhido só pelo som e contido por
+uma regra fixa de densidade, ficou fraco: decoração, não colisão. Por isso o
+pipeline agora exige: mapear o material (planos + ataques) antes de decidir,
+escolher um modo de violência (contido / saturação / regra única) e remontar
+antes de filtrar.
 
 ## Armadilhas
 

@@ -73,10 +73,21 @@ A música é a GRADE. Peça a faixa do usuário (caminho local). Registre
 `metadata.music_plan = {"source": "user_file", "path": ..., "bpm": null}`.
 Silêncio só com opt-out explícito do usuário.
 
-### 7. Saída
+### 7. Modo de violência (OBRIGATÓRIO)
+
+Escolha UM e grave em `metadata.modo`:
+- `contido` — poucos golpes em lugares exatos; o material já é forte;
+- `saturacao` — a destruição cresce até a imagem quase sumir;
+- `regra_unica` — uma violência só, aplicada sem exceção (ex.: "tudo que é do
+  rei congela no beat").
+
+Diga ao usuário por que esse modo serve à tese e ofereça o mais provocador
+dos outros dois.
+
+### 8. Saída
 
 Brief válido no schema, com em `metadata`: `tese_colisao`, `motivo`,
-`regra_ruptura`, `fonte_material`, `music_plan`, `duration_seconds`,
+`regra_ruptura`, `modo`, `fonte_material`, `music_plan`, `duration_seconds`,
 `gramatica: "selvagem"`.
 
 ## Gate

@@ -36,6 +36,26 @@ diferenças:
   da música vai a 0 SEM rampa. No ffmpeg:
   `volume=enable='between(t,S,E)':volume=0`.
 
+## 1b. Remontagem (quando `edit_decisions.metadata.fragmentos` existe)
+
+Se o edit trouxe fragmentos, o corpo NÃO sai do `video_compose`: ele sai do
+`remonta.py`, que corta cada fragmento da fonte, aplica o `fx` dele e cola
+tudo sobre o áudio inteiro.
+
+```bash
+python3 scripts/selvagem/remonta.py \
+  --fonte <video fonte> \
+  --plano projects/<nome>/fragmentos.json \
+  --saida projects/<nome>/renders/body.mp4 \
+  [--audio <faixa do brief>]
+```
+- Extraia `metadata.fragmentos` pra `fragmentos.json` antes.
+- O script reaproveita fragmentos já renderizados: rodar de novo depois de
+  mudar UM fragmento só re-renderiza aquele.
+- Registre `render_report.metadata.body_via = "remonta"` (ou `"video_compose"`)
+  e diga ao usuário que nesse caminho o Remotion não foi usado — é uma
+  troca declarada pelo modo de remontagem, não silenciosa.
+
 ## 2. Passe de abuso
 
 ```bash
